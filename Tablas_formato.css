@@ -1,0 +1,43 @@
+/*Tablas nivel 1
+
+*/
+
+body{
+    background-color:lightyellow;
+
+}
+
+h1{
+    text-align: center;
+
+}
+
+table{
+    background-color: lightblue;
+    margin-top: 50px;
+    caption-side: bottom;
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+}
+
+th{
+   background-color: steelblue;
+   color: white; 
+
+}
+
+caption{
+    padding-top: 20px;
+    font-style: italic;
+}
+
+
+td,th{
+    border: 2px solid black;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+}
