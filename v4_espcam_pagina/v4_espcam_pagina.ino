@@ -65,15 +65,13 @@ void enviaMedianteHTTP (String No_empleado, int opcion){
   //
 //Verifica el estado de la conexion WIFI
   if(WiFi.status()== WL_CONNECTED){
-    int httpResponseCode;
-    WiFiClient client;
-    HTTPClient http;
+      int httpResponseCode=0;
+      WiFiClient client;
+      HTTPClient http;
       //enviar hacia BD
       if(opcion == 1){   
-        //Declaración de varibles
-        
         // Esablece conexion con el dominio asigando
-          http.begin(client, serverName);
+        http.begin(client, serverName);
         //Especifica el tipo de encabezado
         http.addHeader("Content-Type", "application/x-www-form-urlencoded");
         //Variable que almacena datos de los sensores
@@ -85,11 +83,12 @@ void enviaMedianteHTTP (String No_empleado, int opcion){
       }
       else if (opcion == 2){
         //Enviar Whatsapp
-        url = "https://api.callmebot.com/whatsapp.php?phone=5215520217523&apikey=2868930&text=+Intruso+en+CT";
-        http.begin(url);
-        httpResponseCode = http.POST(url);
-        Serial.print("URL para Whatsapp: ");
-        Serial.println(url);  
+        http.begin(client, serverName);
+        http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        String httpRequestData ="api_key=" + apiKeyValue + "&value1=" + No_empleado ;
+        Serial.print("httpRequestData: ");
+        Serial.println(httpRequestData);  
+        httpResponseCode = http.POST(httpRequestData); 
       }
     //imprime en la consola el estado de envio del paquete
     if (httpResponseCode>0) {
@@ -108,6 +107,7 @@ void enviaMedianteHTTP (String No_empleado, int opcion){
     Serial.println("WiFi Disconnected");
   }
 }
+
 
 void rutinaCerradura(){
   valor2 = digitalRead(sensor);
@@ -184,6 +184,20 @@ void loop() {
       }
       else if (DatoQR == "103")
       {
+        if(contador >2){
+            contador=0;
+            //contador reiniciado
+          }
+        Serial.println("Encontrado 103...");
+        Serial.println(DatoQR);
+        digitalWrite(rojo,LOW); 
+        delay(500);
+        digitalWrite(FLASH,LOW);
+        enviaMedianteHTTP(DatoQR,1);
+        rutinaCerradura();
+      }
+      else if (DatoQR == "104")
+      {
         Serial.println("Encontrado 103...");
         Serial.println(DatoQR);
         digitalWrite(rojo,LOW); 
@@ -208,7 +222,7 @@ void loop() {
       if(contador<2){
        enviaMedianteHTTP("999",1);
         delay(1000);
-       enviaMedianteHTTP("Whatsapp",2);
+       //enviaMedianteHTTP("Whatsapp",2);
         }
       //digitalWrite(FLASH,LOW);  
   }
