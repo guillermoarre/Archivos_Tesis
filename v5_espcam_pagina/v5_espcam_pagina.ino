@@ -1,4 +1,4 @@
-
+#include "CuartoTC.h"
 #include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -9,25 +9,14 @@
 #include "esp_camera.h"
 #include <ESP32QRCodeReader.h>
 
-//Variables para envio de mensajes
-
 const int INTERNO = 33;
 const int FLASH = 4;
-/*
-const int rojo = 15;
-const int cerradura = 12;
-const int buzzer = 2;
-*/
 const int out1 = 2;
 const int out2 = 12;
 const int out3 = 15;
-uint8_t val1;
-uint8_t val2;
-uint8_t val3;
-
 const int sensor = 14;
-int valor = 0;
-int valor2 = 0;
+uint8_t valor = 0;
+uint8_t valor2 = 0;
 int contador = 0;
 
 ESP32QRCodeReader reader(CAMERA_MODEL_AI_THINKER);
@@ -64,14 +53,7 @@ void onQrCodeTask(void *pvParameters){
   }
 }
 
-bool compruebaEntradas(uint8_t in1, uint8_t in2, uint8_t in3){
-  if(in1==HIGH && in2==LOW && in3==LOW)
-  return true;
-
-  
-  }
 void enviaMedianteHTTP (String No_empleado){
-  //
 //Verifica el estado de la conexion WIFI
   if(WiFi.status()== WL_CONNECTED){
       int httpResponseCode=0;
@@ -88,8 +70,6 @@ void enviaMedianteHTTP (String No_empleado){
         Serial.println(httpRequestData);  
       //Envia solicitud HTTP con metodo POST
         httpResponseCode = http.POST(httpRequestData);
-      
-      
     //imprime en la consola el estado de envio del paquete
     if (httpResponseCode>0) {
       Serial.print("HTTP Response code: ");
@@ -107,21 +87,65 @@ void enviaMedianteHTTP (String No_empleado){
     Serial.println("WiFi Disconnected");
   }
 }
-
-
 void rutinaCerradura(){
   valor2 = digitalRead(sensor);
-  //digitalWrite(buzzer, HIGH);
-  //digitalWrite(cerradura,HIGH);
   delay(10000);
-  //digitalWrite(buzzer, LOW);
-  //digitalWrite(cerradura, LOW);
+  datosEnviadosNANO("op1");
   while(valor2 == HIGH){
       Serial.println("Mantenimiento dentro del cuarto....");
       delay(500);
     }
 }
-
+void datosEnviadosNANO(String opcion){
+  if(opcion == "op0"){
+    //opcion 0 = todo apagado
+    digitalWrite(out1, LOW);
+    digitalWrite(out2, LOW);
+    digitalWrite(out3, LOW);
+    }
+   else if (opcion == "op1"){
+    //opcion 1 = LED ROJO
+    digitalWrite(out1, HIGH);
+    digitalWrite(out2, LOW);
+    digitalWrite(out3, LOW);
+    }
+    else if (opcion == "op2"){
+    //opcion 2 = LED VERDE
+    digitalWrite(out1, LOW);
+    digitalWrite(out2, HIGH);
+    digitalWrite(out3, LOW);
+    }
+    else if (opcion == "op3"){
+    //opcion 3 = LED AMARILLO
+    digitalWrite(out1, HIGH);
+    digitalWrite(out2, HIGH);
+    digitalWrite(out3, LOW);
+    }
+    else if (opcion == "op4"){
+    //opcion 4 = BUZZER
+    digitalWrite(out1, LOW);
+    digitalWrite(out2, LOW);
+    digitalWrite(out3, HIGH);
+    }
+    else if (opcion == "op5"){
+    //opcion 5 = CERRADURA
+    digitalWrite(out1, HIGH);
+    digitalWrite(out2, LOW);
+    digitalWrite(out3, HIGH);
+    }
+    else if (opcion == "op6"){
+    //opcion 6 = SALIDA6
+    digitalWrite(out1, LOW);
+    digitalWrite(out2, HIGH);
+    digitalWrite(out3, HIGH);
+    }
+    else if (opcion == "op4"){
+    //opcion 7 = SALIDA7
+    digitalWrite(out1, HIGH );
+    digitalWrite(out2, HIGH);
+    digitalWrite(out3, HIGH);
+    }
+ }
 void setup() {
   pinMode(FLASH,OUTPUT);
   pinMode(INTERNO,OUTPUT);
@@ -152,24 +176,19 @@ void setup() {
   Serial.println("Begin on Core 1");
   xTaskCreate(onQrCodeTask, "onQrCode", 4 * 1024, NULL, 4, NULL);
   digitalWrite(INTERNO,LOW);
-  //digitalWrite(buzzer,LOW);
+  datosEnviadosNANO("op0");
 }
 
 
 void loop() {
   valor = digitalRead(sensor);
-  val1 = digitalRead(out1);
-  val2 = digitalRead(out2);
-  val3 = digitalRead(out3);
-  
   if(valor != HIGH){
-      //digitalWrite(buzzer,LOW);
-      compruebaEntradas(val1,val2,val3);
+      datosEnviadosNANO("op1");
       if (DatoQR == "101")
       {
         Serial.println("Encontrado 101...");
         Serial.println(DatoQR);
-        //digitalWrite(rojo,LOW);
+        datosEnviadosNANO("op2");
         delay(500);
         digitalWrite(FLASH,LOW);
         enviaMedianteHTTP(DatoQR);
@@ -179,22 +198,21 @@ void loop() {
       {
         Serial.println("Encontrado 102...");
         Serial.println(DatoQR);
-        //digitalWrite(rojo,LOW);
+        datosEnviadosNANO("op2");
         delay(500);
         digitalWrite(FLASH,LOW);
         enviaMedianteHTTP(DatoQR);
         rutinaCerradura();
-        
       }
       else if (DatoQR == "103")
       {
         if(contador >2){
             contador=0;
-            //contador reiniciado
+            //contador reiniciado por admin principal
           }
         Serial.println("Encontrado 103...");
         Serial.println(DatoQR);
-        //digitalWrite(rojo,LOW); 
+        datosEnviadosNANO("op2");
         delay(500);
         digitalWrite(FLASH,LOW);
         enviaMedianteHTTP(DatoQR);
@@ -204,7 +222,7 @@ void loop() {
       {
         Serial.println("Encontrado 103...");
         Serial.println(DatoQR);
-        //digitalWrite(rojo,LOW); 
+        datosEnviadosNANO("op2");
         delay(500);
         digitalWrite(FLASH,LOW);
         enviaMedianteHTTP(DatoQR);
@@ -214,20 +232,17 @@ void loop() {
       {
         Serial.println("Sin empleados...");
       }
-      //digitalWrite(rojo,HIGH);
  }
   else{
-    
       contador ++;
       digitalWrite(FLASH,HIGH);
-      //digitalWrite(buzzer,HIGH);
+      datosEnviadosNANO("op3");
       Serial.println("Personal NO autorizado...");
       delay(1500);
       if(contador<2){
        enviaMedianteHTTP("999");
        delay(1000);
         }
-     
   }
   DatoQR = ""; 
   digitalWrite(FLASH,LOW);
