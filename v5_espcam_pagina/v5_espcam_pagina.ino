@@ -35,17 +35,17 @@ void onQrCodeTask(void *pvParameters){
   {
     if (reader.receiveQrCode(&qrCodeData, 100))
     {
-      Serial.println("Found QRCode");
+      Serial.println("Código QR encontrado");
       digitalWrite(FLASH,HIGH);
       if (qrCodeData.valid)
       {
         Serial.print("Payload: ");
         DatoQR = (const char *)qrCodeData.payload;
-        //Serial.println((const char *)qrCodeData.payload);
+        Serial.println((const char *)qrCodeData.payload);
       }
       else
       {
-        Serial.print("Invalid: ");
+        Serial.print("Invalido: ");
         Serial.println((const char *)qrCodeData.payload);
       }
     }
@@ -88,13 +88,19 @@ void enviaMedianteHTTP (String No_empleado){
   }
 }
 void rutinaCerradura(){
-  valor2 = digitalRead(sensor);
-  delay(10000);
-  datosEnviadosNANO("op1");
-  while(valor2 == HIGH){
-      Serial.println("Mantenimiento dentro del cuarto....");
-      delay(500);
-    }
+  //valor2 = digitalRead(sensor);
+  digitalWrite(FLASH,LOW);
+  delay(8000);
+  //datosEnviadosNANO("op1");
+  do{
+    Serial.println("Mantenimiento dentro del cuarto....");
+    datosEnviadosNANO("op4");
+    delay(1000);
+    datosEnviadosNANO("op5");
+    valor2 = digitalRead(sensor);
+   }
+   while(valor2 == HIGH);
+    
 }
 void datosEnviadosNANO(String opcion){
   if(opcion == "op0"){

@@ -77,11 +77,19 @@ void loop() {
     Serial.println("op3");
   }
   else if(val1 == LOW && val2 == LOW && val3 == HIGH){
-    //digitalWrite(out4,HIGH);
+    digitalWrite(ledrojo,LOW);
+    digitalWrite(ledamarillo,HIGH);
+    digitalWrite(ledverde,LOW);
+    digitalWrite(buzzer,LOW);
+    digitalWrite(cerradura,LOW);
     Serial.println("op4");
   }
   else if(val1 == HIGH && val2 == LOW && val3 == HIGH){
-    //digitalWrite(out5,HIGH);
+    digitalWrite(ledrojo,LOW);
+    digitalWrite(ledamarillo,LOW);
+    digitalWrite(ledverde,LOW);
+    digitalWrite(buzzer,LOW);
+    digitalWrite(cerradura,LOW);
     Serial.println("op5");
   }
   else if(val1 == LOW && val2 == HIGH && val3 == HIGH){
